@@ -1,0 +1,25 @@
+/**
+ * Module dependencies.
+ */
+
+var sharejs = require('share').server;
+var connect = require('connect');
+
+var server = connect(
+      connect.logger(),
+      connect.static(__dirname + '/public')
+      ).use(function(req,res) {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Credentials', true); 
+        res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELTE, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type'); 
+      });
+
+var options = {db: {type: 'none'}};
+
+
+sharejs.attach(server, options);
+server.listen(6655, function(){
+    console.log('Server running at http://localhost:6655/');
+});
+

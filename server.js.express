@@ -1,0 +1,115 @@
+/**
+ * Module dependencies.
+ */
+
+var express = require('express');
+//var everyauth = require('everyauth');
+//var stylus = require('stylus');
+var sharejs = require('share').server;
+var app = module.exports = express.createServer();
+
+//everyauth.helpExpress(app);
+
+// Configuration
+/*
+function compile(str, path) {
+    return stylus(str)
+	.set('filename', path)
+	// .set('compress', true);
+}
+everyauth.debug = true;
+
+var usersByFbId = {};
+var usersById = {};
+var usersByGoogleId = {};
+
+var nextUserId = 0;
+
+function addUser (source, sourceUser) {
+    var user;
+    if (arguments.length === 1) { // password-based
+	user = sourceUser = source;
+	user.id = ++nextUserId;
+	return usersById[nextUserId] = user;
+    } else { // non-password-based
+	user = usersById[++nextUserId] = {id: nextUserId};
+	user[source] = sourceUser;
+    }
+    return user;
+}
+
+everyauth.everymodule
+  .findUserById( function (id, callback) {
+    callback(null, usersById[id]);
+  });
+
+everyauth
+    .facebook
+    .appId("290491051026125")
+    .appSecret("b3f20e1678af9d70dfc0a4aad9f156af")
+    .findOrCreateUser( function (session, accessToken, accessTokenExtra, fbUserMetadata) {
+	return usersByFbId[fbUserMetadata.id] ||
+            (usersByFbId[fbUserMetadata.id] = addUser('facebook', fbUserMetadata));
+    })
+    .redirectPath('/');
+
+everyauth.google
+    .appId("634411416057.apps.googleusercontent.com")
+    .appSecret("0YvhqMI0F7Vn2dlh-sDlZrQx")
+    .scope('https://www.googleapis.com/auth/userinfo.profile https://www.google.com/m8/feeds/')
+    .findOrCreateUser( function (sess, accessToken, extra, googleUser) {
+	googleUser.refreshToken = extra.refresh_token;
+	googleUser.expiresIn = extra.expires_in;
+	return usersByGoogleId[googleUser.id] || (usersByGoogleId[googleUser.id] = addUser('google', googleUser));
+    })
+    .redirectPath('/');
+*/
+
+app.configure(function(){
+    this.set('views', __dirname + '/views');
+    this.set('view engine', 'jade');
+    this.set('view options', { layout: 'layout' })
+    this.use(express.bodyParser());
+    this.use(express.logger());
+    this.use(express.methodOverride());
+    this.use(express.cookieParser());
+    this.use(express.session({secret: 'Eah4tfzGAKhr'}));
+/*    this.use(stylus.middleware({
+	src: __dirname + '/views'
+	, dest: __dirname + '/public'
+	, compile: compile
+    }));*/
+    this.use(express.favicon(__dirname + '/public/favicon.ico', { maxAge: 2592000000}));
+    this.use(express.static(__dirname + '/public'));
+    
+    //this.use(everyauth.middleware());
+    // Keep this as last one
+    this.use(this.router);
+});
+
+
+app.configure('development', function(){
+    app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+});
+
+app.configure('production', function(){
+  app.use(express.errorHandler());
+});
+
+// App starts here
+//var mongoose = require('mongoose');
+//mongoose.connect('mongodb://173.230.141.159/cooperaciones-dev');
+//var models = require('./models/models');
+//var User = mongoose.model('User', models.User);
+//var NodeModel = mongoose.model('Node');
+app.all('*', function(req, res,next){
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    next();
+});
+
+var options = {db: {type: 'none'}};
+
+sharejs.attach(app, options);
+app.listen(6655);
+console.log('Server running at http://127.0.0.1:6655/');
